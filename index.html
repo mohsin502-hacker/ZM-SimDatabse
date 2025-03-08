@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZM Sim Database</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(45deg, #FF00FF, #007BFF);
+            color: #fff;
+            text-align: center;
+            padding: 30px;
+            overflow-x: hidden;
+            animation: bgTransition 5s infinite alternate;
+        }
+
+        /* Background Animation */
+        @keyframes bgTransition {
+            0% { background: linear-gradient(45deg, #FF00FF, #007BFF); }
+            100% { background: linear-gradient(45deg, #8A2BE2, #00FFFF); }
+        }
+
+        /* Logo */
+        .logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid #FF00FF;
+            box-shadow: 0px 0px 20px #FF00FF;
+            margin: 15px auto;
+            display: block;
+        }
+
+        /* Neon Heading */
+        h2 {
+            font-size: 36px;
+            font-weight: bold;
+            color: #00FFFF;
+            text-shadow: 0px 0px 15px rgba(0, 255, 255, 1);
+            margin-bottom: 15px;
+        }
+
+        /* Input Styles */
+        input {
+            padding: 10px;
+            width: 80%;
+            border-radius: 25px;
+            border: 2px solid #FF00FF;
+            font-size: 16px;
+            outline: none;
+            transition: 0.3s;
+            background-color: #111;
+            color: #fff;
+            box-shadow: 0px 0px 15px rgba(255, 0, 255, 0.5);
+        }
+
+        input:focus {
+            border-color: #00FFFF;
+            box-shadow: 0px 0px 20px rgba(0, 255, 255, 0.8);
+        }
+
+        /* Button Style */
+        button {
+            padding: 12px 35px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #FF00FF, #00FFFF);
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.4s ease-in-out;
+            margin-top: 10px;
+            box-shadow: 0px 0px 20px rgba(255, 0, 255, 0.7);
+            position: relative;
+            animation: neonGlow 1.5s infinite alternate;
+        }
+
+        /* Neon Light Effect */
+        @keyframes neonGlow {
+            0% { box-shadow: 0px 0px 20px rgba(255, 0, 255, 0.7); }
+            100% { box-shadow: 0px 0px 30px rgba(0, 255, 255, 0.8); }
+        }
+
+        /* Button Press Effect */
+        button:active {
+            transform: scale(0.9);
+        }
+
+        /* Response Box Auto Expand */
+        .response-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .response-box {
+            width: auto;
+            min-width: 350px;
+            max-width: 90%;
+            min-height: 80px;
+            padding: 12px;
+            background: #222;
+            border: 2px solid #00FFFF;
+            border-radius: 10px;
+            box-shadow: 0px 0px 20px rgba(0, 255, 255, 0.7);
+            text-align: left;
+            font-size: 14px;
+            transition: 0.5s ease-in-out;
+            overflow: auto; /* Scroll enable */
+            white-space: pre-wrap; /* Wrap text properly */
+        }
+
+        /* WhatsApp Icon */
+        .whatsapp-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 55px;
+            height: 55px;
+            background-color: #25D366;
+            border-radius: 50%;
+            box-shadow: 0px 0px 20px rgba(37, 211, 102, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.4s;
+        }
+
+        .whatsapp-btn img {
+            width: 30px;
+            height: 30px;
+        }
+
+        .whatsapp-btn:hover {
+            transform: scale(1.1) rotate(360deg);
+            box-shadow: 0px 0px 30px rgba(37, 211, 102, 1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Circle Logo -->
+    <img src="Zmpic.png" alt="Logo" class="logo">
+
+    <h2>🔍🚀 ZM Sim Database </h2>
+
+    <!-- Form -->
+    <form id="simForm">
+        <input type="text" id="number" placeholder="Enter Phone Number" required>
+        <br>
+        <button type="submit" id="checkButton">Check Number</button>
+    </form>
+
+    <!-- Response Box -->
+    <div class="response-container">
+        <div id="responseBox" class="response-box">📌 <strong>Enter a number to check details...</strong></div>
+    </div>
+
+    <!-- JavaScript Code -->
+    <script>
+        document.getElementById('simForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const number = document.getElementById('number').value;
+            const url = `/api/sim_proxy?num=${encodeURIComponent(number)}`;
+
+            // Click Sound Play
+            document.getElementById("clickSound").play();
+
+            try {
+                const response = await fetch(url);
+                const apiData = await response.json();
+
+                if (apiData) {
+                    let responseBox = document.getElementById('responseBox');
+                    responseBox.innerHTML = `<strong>✅ API Response:</strong><br><pre>${JSON.stringify(apiData, null, 2)}</pre>`;
+                    
+                    // Auto expand based on content
+                    responseBox.style.maxHeight = "none"; 
+                    responseBox.style.maxWidth = "none"; 
+                    responseBox.style.overflow = "auto"; 
+                    
+                    setTimeout(() => {
+                        window.scrollTo({ top: responseBox.offsetTop - 80, behavior: 'smooth' });
+                    }, 500);
+                } else {
+                    document.getElementById('responseBox').innerHTML = `<strong class="error">❌ Error: No response from API</strong>`;
+                }
+            } catch (error) {
+                document.getElementById('responseBox').innerHTML = `<strong class="error">❌ Error: Unable to reach the API. ${error.message}</strong>`;
+            }
+        });
+
+        // Add Click Sound
+        let sound = document.createElement("audio");
+        sound.id = "clickSound";
+        sound.src = "click.mp3";
+        document.body.appendChild(sound);
+    </script>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/923214287620?text=Hyyy,%20I%20want%20to%20ask%20question%20about%20your%20sim%20database" target="_blank" class="whatsapp-btn" title="Ask on WhatsApp">
+        <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp">
+    </a>
+
+</body>
+</html>
